@@ -110,7 +110,9 @@ Le workflow `.github/workflows/deploy-pages.yml` lance les tests, construit avec
 2. Dans « Settings → Pages », choisir **Source : GitHub Actions**.
 3. Pour la synchro, créer deux **variables de dépôt** (Settings → Secrets and variables → Actions → *Variables*) :
    `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY`.
-4. Chaque push sur `main` redéploie sur `https://<utilisateur>.github.io/<nom-du-dépôt>/`.
+4. Avec un **domaine personnalisé** (ex. `imdone.tech`), le site est à la racine : créer aussi la variable de dépôt
+   `VITE_BASE` avec la valeur `/`. Sans domaine personnalisé, ne pas la définir (le workflow utilise `/<nom-du-dépôt>/`).
+5. Chaque push sur `main` redéploie sur `https://<utilisateur>.github.io/<nom-du-dépôt>/`.
 
 Le sous-chemin est fourni au build par la variable `VITE_BASE` (par défaut `/`). Pour tester le build Pages en local :
 

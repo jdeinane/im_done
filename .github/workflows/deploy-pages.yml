@@ -30,7 +30,8 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          VITE_BASE: /${{ github.event.repository.name }}/
+          # Variable de dépôt VITE_BASE = / quand un domaine personnalisé est utilisé ; sinon /nom-du-dépôt/.
+          VITE_BASE: ${{ vars.VITE_BASE || format('/{0}/', github.event.repository.name) }}
           # Variables de dépôt (Settings > Secrets and variables > Actions > Variables).
           # La clé « publishable » est publique par conception : ce ne sont pas des secrets.
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
