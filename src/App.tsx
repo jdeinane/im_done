@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BlockList } from './components/BlockList'
 import { DayProgress } from './components/DayProgress'
+import { ManageBlocks } from './components/ManageBlocks'
 import { Settings } from './components/Settings'
 import { toDateKey } from './domain/dates'
 import { useAutoValidate } from './hooks/useAutoValidate'
@@ -15,6 +16,7 @@ export default function App() {
   const { state, actions } = useStore()
   const now = useNow()
   const [prefs, updatePrefs] = usePrefs()
+  const [managing, setManaging] = useState(false)
   const today = toDateKey(now)
   const day = state.days[today]
   const celebrating = useAutoValidate(day, now, prefs, actions.markNotified)
@@ -32,7 +34,12 @@ export default function App() {
         <h1>imDone</h1>
         <p>{dateFormat.format(now)}</p>
       </header>
-      <Settings prefs={prefs} onChange={updatePrefs} />
+      <div className="toolbar">
+        <Settings prefs={prefs} onChange={updatePrefs} />
+        <button type="button" className="btn btn--small" aria-pressed={managing} onClick={() => setManaging((m) => !m)}>
+          {managing ? '← Retour à la journée' : '⚙️ Gérer les blocs'}
+        </button>
+      </div>
       {/* Région live toujours présente pour que les lecteurs d'écran annoncent la validation. */}
       <p className="toast" role="status" hidden={!celebratedNames?.length}>
         {celebratedNames?.length ? `🎉 ${celebratedNames.join(', ')} : validé !` : ''}
@@ -40,7 +47,7 @@ export default function App() {
       {day && (
         <>
           <DayProgress day={day} now={now} />
-          <BlockList day={day} now={now} celebrating={celebrating} />
+          {managing ? <ManageBlocks day={day} /> : <BlockList day={day} now={now} celebrating={celebrating} />}
         </>
       )}
     </main>
