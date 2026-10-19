@@ -15,6 +15,8 @@ export interface Actions {
   moveBlock(blockId: string, direction: -1 | 1): void
   saveTemplate(): void
   applyTemplate(): void
+  /** Fusionne l'état d'un autre appareil (synchronisation). */
+  mergeRemote(remote: AppState): void
 }
 
 export interface Store {

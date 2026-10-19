@@ -1,5 +1,6 @@
 import { rolloverToToday } from '../domain/dayRollover'
 import { toDateKey } from '../domain/dates'
+import { mergeStates } from '../domain/merge'
 import { isBlockDone } from '../domain/progress'
 import { pauseActive, startBlock } from '../domain/sessions'
 import { adjustMinutes, emptyProgress } from '../domain/timer'
@@ -9,6 +10,8 @@ import type { AppState, Block, Day } from '../domain/types'
 export type Action =
   | { type: 'tick'; now: number }
   | { type: 'hydrate'; state: AppState; now: number }
+  /** État reçu d'un autre appareil : fusionné jour par jour (cf. domain/merge). */
+  | { type: 'mergeRemote'; state: AppState; now: number }
   | { type: 'start'; blockId: string; now: number }
   | { type: 'pause'; now: number }
   | { type: 'adjust'; blockId: string; deltaMin: number; now: number }
@@ -40,6 +43,8 @@ function apply(state: AppState, action: Action): AppState {
       return state
     case 'hydrate':
       return action.state
+    case 'mergeRemote':
+      return mergeStates(state, action.state)
     case 'start':
       return startBlock(state, action.blockId, now)
     case 'pause':
@@ -100,7 +105,7 @@ function apply(state: AppState, action: Action): AppState {
       })
     case 'saveTemplate': {
       const day = state.days[toDateKey(now)]
-      return day ? { ...state, template: day.blocks.map((b) => ({ ...b })) } : state
+      return day ? { ...state, template: day.blocks.map((b) => ({ ...b })), templateUpdatedAt: now } : state
     }
     case 'applyTemplate': {
       const { template } = state
@@ -114,9 +119,22 @@ function apply(state: AppState, action: Action): AppState {
   }
 }
 
+/** Horodate les jours modifiés par une action (comparaison par référence avec l'état d'avant). */
+function stampChangedDays(before: AppState, after: AppState, now: number): AppState {
+  if (before.days === after.days) return after
+  const days = { ...after.days }
+  for (const [date, day] of Object.entries(days)) {
+    if (day !== before.days[date]) days[date] = { ...day, updatedAt: now }
+  }
+  return { ...after, days }
+}
+
 export function reducer(state: AppState, action: Action): AppState {
+  // Les états importés d'un autre appareil gardent leurs propres horodatages.
+  if (action.type === 'hydrate' || action.type === 'mergeRemote') {
+    return rolloverToToday(apply(state, action), action.now)
+  }
   // Chaque action part d'un état à jour : changement de jour et chrono figé à minuit.
-  const base = action.type === 'hydrate' ? state : rolloverToToday(state, action.now)
-  const next = apply(base, action)
-  return action.type === 'hydrate' ? rolloverToToday(next, action.now) : next
+  const rolled = rolloverToToday(state, action.now)
+  return stampChangedDays(rolled, apply(rolled, action), action.now)
 }

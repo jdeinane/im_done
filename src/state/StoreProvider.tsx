@@ -49,6 +49,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       moveBlock: (blockId, direction) => dispatch({ type: 'moveBlock', blockId, direction, now: now() }),
       saveTemplate: () => dispatch({ type: 'saveTemplate', now: now() }),
       applyTemplate: () => dispatch({ type: 'applyTemplate', now: now() }),
+      mergeRemote: (remote) => dispatch({ type: 'mergeRemote', state: remote, now: now() }),
     }
   }, [])
 

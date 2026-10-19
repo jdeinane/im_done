@@ -18,6 +18,8 @@ export function browserStorage(): StorageLike | null {
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 
+const isOptionalNumber = (v: unknown): boolean => v === undefined || typeof v === 'number'
+
 function isBlock(v: unknown): boolean {
   return (
     isRecord(v) &&
@@ -45,6 +47,7 @@ function isDay(v: unknown): boolean {
   return (
     isRecord(v) &&
     typeof v.date === 'string' &&
+    isOptionalNumber(v.updatedAt) &&
     Array.isArray(v.blocks) &&
     v.blocks.every(isBlock) &&
     isRecord(v.progress) &&
@@ -52,10 +55,12 @@ function isDay(v: unknown): boolean {
   )
 }
 
-function isAppState(v: unknown): v is AppState {
+/** Garde de type pour un état reçu du disque ou du réseau : on ne fait confiance à aucune donnée externe. */
+export function isAppState(v: unknown): v is AppState {
   return (
     isRecord(v) &&
     v.schemaVersion === 1 &&
+    isOptionalNumber(v.templateUpdatedAt) &&
     Array.isArray(v.template) &&
     v.template.every(isBlock) &&
     isRecord(v.days) &&

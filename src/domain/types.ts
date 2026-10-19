@@ -30,11 +30,15 @@ export interface Day {
   /** Snapshot du modèle au moment de la création du jour. */
   blocks: Block[]
   progress: Record<string, BlockProgress>
+  /** Dernière modification réelle (ms) ; sert à départager deux appareils. Absent = jamais modifié. */
+  updatedAt?: number
 }
 
 export interface AppState {
   schemaVersion: 1
   template: Block[]
+  /** Dernière modification du modèle (ms), pour la synchronisation. */
+  templateUpdatedAt?: number
   days: Record<string, Day>
   /** Bloc dont le chrono tourne (un seul à la fois), dans le jour courant. */
   activeBlockId: string | null

@@ -4,9 +4,12 @@ import { DayProgress } from './components/DayProgress'
 import { History } from './components/History'
 import { ManageBlocks } from './components/ManageBlocks'
 import { Settings } from './components/Settings'
+import { SyncPanel } from './components/SyncPanel'
 import { ViewTabs, type View } from './components/ViewTabs'
 import { toDateKey } from './domain/dates'
+import { useAuth } from './hooks/useAuth'
 import { useAutoValidate } from './hooks/useAutoValidate'
+import { useCloudSync } from './hooks/useCloudSync'
 import { useNow } from './hooks/useNow'
 import { usePrefs } from './hooks/usePrefs'
 import { useStore } from './state/storeContext'
@@ -19,6 +22,8 @@ export default function App() {
   const now = useNow()
   const [prefs, updatePrefs] = usePrefs()
   const [view, setView] = useState<View>('today')
+  const auth = useAuth()
+  const sync = useCloudSync(auth.user)
   const today = toDateKey(now)
   const day = state.days[today]
   const celebrating = useAutoValidate(day, now, prefs, actions.markNotified)
@@ -52,6 +57,7 @@ export default function App() {
             ) : (
               <>
                 <Settings prefs={prefs} onChange={updatePrefs} />
+                <SyncPanel auth={auth} sync={sync} />
                 <BlockList day={day} now={now} celebrating={celebrating} />
               </>
             )}

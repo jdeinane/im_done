@@ -155,3 +155,36 @@ describe('reducer: modèle de journée', () => {
     expect(Object.keys(s.days).sort()).toEqual(['2026-10-18', '2026-10-19'])
   })
 })
+
+describe('reducer: horodatage et synchronisation', () => {
+  it('horodate le jour modifié, pas un jour vierge', () => {
+    const fresh = stateAt(t0)
+    expect(fresh.days[today].updatedAt).toBeUndefined()
+    const s = run(fresh, { type: 'adjust', blockId: 'leet', deltaMin: 5, now: t0 + MIN })
+    expect(s.days[today].updatedAt).toBe(t0 + MIN)
+  })
+
+  it('un tick sans changement ne touche pas à updatedAt', () => {
+    const s = run(stateAt(t0), { type: 'tick', now: t0 + 5 * MIN })
+    expect(s.days[today].updatedAt).toBeUndefined()
+  })
+
+  it('saveTemplate horodate le modèle', () => {
+    const s = run(stateAt(t0), { type: 'saveTemplate', now: t0 + MIN })
+    expect(s.templateUpdatedAt).toBe(t0 + MIN)
+  })
+
+  it('mergeRemote garde les horodatages de l’autre appareil', () => {
+    const remote = run(stateAt(t0), { type: 'adjust', blockId: 'leet', deltaMin: 40, now: t0 })
+    const s = run(stateAt(t0), { type: 'mergeRemote', state: remote, now: t0 + 10 * MIN })
+    expect(elapsedMs(s.days[today].progress.leet, t0)).toBe(40 * MIN)
+    expect(s.days[today].updatedAt).toBe(t0)
+  })
+
+  it('mergeRemote ne remplace pas un état local plus récent', () => {
+    const remote = run(stateAt(t0), { type: 'adjust', blockId: 'leet', deltaMin: 40, now: t0 })
+    const local = run(stateAt(t0), { type: 'adjust', blockId: 'leet', deltaMin: 10, now: t0 + MIN })
+    const s = run(local, { type: 'mergeRemote', state: remote, now: t0 + 2 * MIN })
+    expect(s).toBe(local)
+  })
+})

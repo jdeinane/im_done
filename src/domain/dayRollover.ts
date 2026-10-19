@@ -32,7 +32,7 @@ export function rolloverToToday(state: AppState, now: number): AppState {
       frozen = true
     }
     if (frozen) {
-      days = { ...days, [date]: { ...day, progress } }
+      days = { ...days, [date]: { ...day, progress, updatedAt: cutoff } }
       activeBlockId = null
     }
   }
