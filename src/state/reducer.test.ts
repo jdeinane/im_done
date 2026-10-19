@@ -51,6 +51,26 @@ describe('reducer: ajustements et validation', () => {
     expect(undone.days[today].progress.leet).toMatchObject({ manuallyValidated: false, validatedAt: null })
   })
 
+  it('repasser sous la cible par ajustement réarme l’auto-validation', () => {
+    const s = run(
+      stateAt(t0),
+      { type: 'adjust', blockId: 'leet', deltaMin: 120, now: t0 },
+      { type: 'notified', blockId: 'leet', now: t0 },
+      { type: 'adjust', blockId: 'leet', deltaMin: -10, now: t0 + MIN },
+    )
+    expect(s.days[today].progress.leet.validatedAt).toBeNull()
+  })
+
+  it('un ajustement qui garde le bloc validé conserve validatedAt', () => {
+    const s = run(
+      stateAt(t0),
+      { type: 'adjust', blockId: 'leet', deltaMin: 130, now: t0 },
+      { type: 'notified', blockId: 'leet', now: t0 },
+      { type: 'adjust', blockId: 'leet', deltaMin: -10, now: t0 + MIN },
+    )
+    expect(s.days[today].progress.leet.validatedAt).toBe(t0)
+  })
+
   it('notified n’est enregistré qu’une fois', () => {
     const s = run(
       stateAt(t0),

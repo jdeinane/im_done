@@ -1,5 +1,6 @@
 import { rolloverToToday } from '../domain/dayRollover'
 import { toDateKey } from '../domain/dates'
+import { isBlockDone } from '../domain/progress'
 import { pauseActive, startBlock } from '../domain/sessions'
 import { adjustMinutes, emptyProgress } from '../domain/timer'
 import type { AppState, Block, Day } from '../domain/types'
@@ -44,9 +45,15 @@ function apply(state: AppState, action: Action): AppState {
     case 'pause':
       return pauseActive(state, now)
     case 'adjust':
-      return updateToday(state, now, (day) =>
-        withProgress(day, action.blockId, (p) => adjustMinutes(p, action.deltaMin, now)),
-      )
+      return updateToday(state, now, (day) => {
+        const block = day.blocks.find((b) => b.id === action.blockId)
+        return withProgress(day, action.blockId, (p) => {
+          const adjusted = adjustMinutes(p, action.deltaMin, now)
+          // Repassé sous la cible : l'auto-validation pourra se redéclencher à la prochaine fois.
+          const reopened = block && !adjusted.manuallyValidated && !isBlockDone(block, adjusted, now)
+          return reopened ? { ...adjusted, validatedAt: null } : adjusted
+        })
+      })
     case 'setValidated':
       return updateToday(state, now, (day) =>
         withProgress(day, action.blockId, (p) => ({

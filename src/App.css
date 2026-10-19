@@ -180,3 +180,83 @@
     transition: none;
   }
 }
+
+/* Alertes de validation */
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.settings label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.settings__hint {
+  color: var(--text);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.toast {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--done);
+  color: #04210f;
+  font-weight: 600;
+  animation: toast-in 0.3s ease;
+}
+
+.toast[hidden] {
+  display: none;
+}
+
+.card--celebrate {
+  animation: celebrate 0.9s ease 2;
+}
+
+@keyframes celebrate {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--done);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 8px transparent, 0 0 0 3px var(--done);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card--celebrate,
+  .toast {
+    animation: none;
+  }
+
+  .card--celebrate {
+    box-shadow: 0 0 0 3px var(--done);
+  }
+}

@@ -14,17 +14,20 @@ interface Props {
   block: Block
   progress: BlockProgress
   now: number
+  celebrating: boolean
   onStart(): void
   onPause(): void
 }
 
-export function BlockCard({ block, progress, now, onStart, onPause }: Props) {
+export function BlockCard({ block, progress, now, celebrating, onStart, onPause }: Props) {
   const status = blockStatus(block, progress, now)
   const running = progress.runningSince !== null
   const overtime = overtimeMs(block, progress, now)
 
   return (
-    <li className={`card card--${status}`} style={{ '--block-color': block.color } as React.CSSProperties}>
+    <li
+      className={`card card--${status}${celebrating ? ' card--celebrate' : ''}`}
+      style={{ '--block-color': block.color } as React.CSSProperties}>
       <div className="card__head">
         <span className="card__emoji" aria-hidden="true">
           {block.emoji}
