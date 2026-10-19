@@ -260,3 +260,33 @@
     box-shadow: 0 0 0 3px var(--done);
   }
 }
+
+/* Ajustements manuels */
+.adjust summary {
+  display: inline-block;
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.adjust__body {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.adjust__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.adjust__body > .btn {
+  justify-self: start;
+}
+
+.btn--small {
+  grid-column: auto;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}

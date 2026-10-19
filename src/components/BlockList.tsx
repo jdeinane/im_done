@@ -26,6 +26,8 @@ export function BlockList({ day, now, celebrating }: Props) {
           celebrating={celebrating.has(block.id)}
           onStart={() => actions.start(block.id)}
           onPause={actions.pause}
+          onAdjust={(deltaMin) => actions.adjust(block.id, deltaMin)}
+          onSetValidated={(value) => actions.setValidated(block.id, value)}
         />
       ))}
     </ul>

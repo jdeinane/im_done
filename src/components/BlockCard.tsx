@@ -2,6 +2,7 @@ import { blockStatus, overtimeMs, progressRatio, type BlockStatus } from '../dom
 import { elapsedMs } from '../domain/timer'
 import type { Block, BlockProgress } from '../domain/types'
 import { formatClock, formatDuration, formatOvertime } from '../lib/format'
+import { AdjustMenu } from './AdjustMenu'
 import { ProgressBar } from './ProgressBar'
 
 const STATUS_LABEL: Record<BlockStatus, string> = {
@@ -17,9 +18,20 @@ interface Props {
   celebrating: boolean
   onStart(): void
   onPause(): void
+  onAdjust(deltaMin: number): void
+  onSetValidated(value: boolean): void
 }
 
-export function BlockCard({ block, progress, now, celebrating, onStart, onPause }: Props) {
+export function BlockCard({
+  block,
+  progress,
+  now,
+  celebrating,
+  onStart,
+  onPause,
+  onAdjust,
+  onSetValidated,
+}: Props) {
   const status = blockStatus(block, progress, now)
   const running = progress.runningSince !== null
   const overtime = overtimeMs(block, progress, now)
@@ -57,6 +69,13 @@ export function BlockCard({ block, progress, now, celebrating, onStart, onPause 
         label={`Progression ${block.name}`}
         color={block.color}
         done={status === 'done'}
+      />
+      <AdjustMenu
+        block={block}
+        progress={progress}
+        status={status}
+        onAdjust={onAdjust}
+        onSetValidated={onSetValidated}
       />
     </li>
   )
