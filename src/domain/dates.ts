@@ -11,6 +11,12 @@ function parseKey(key: string): [number, number, number] {
   return [y, m - 1, d]
 }
 
+/** Date locale (minuit) correspondant à une clé de jour. */
+export function keyToDate(key: string): Date {
+  const [y, m, d] = parseKey(key)
+  return new Date(y, m, d)
+}
+
 /** Décale une clé de jour de n jours (négatif = passé). */
 export function addDays(key: string, n: number): string {
   const [y, m, d] = parseKey(key)

@@ -3,6 +3,8 @@
   margin: 0 auto;
   padding: 24px 16px 48px;
   display: grid;
+  /* minmax(0, 1fr) : la colonne peut rétrécir sous son contenu (sinon le tableau d'historique élargit la page). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -291,14 +293,33 @@
   font-size: 0.85rem;
 }
 
-/* Barre d'outils et gestion des blocs */
-.toolbar {
+/* Navigation */
+.tabs {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 16px;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--track);
 }
+
+.tabs__tab {
+  flex: 1;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.tabs__tab[aria-current='page'] {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+/* Gestion des blocs */
 
 .manage {
   display: grid;
@@ -412,4 +433,78 @@
 
 .editor__actions .btn {
   grid-column: auto;
+}
+
+/* Historique */
+.history {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+.streak {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.grid__scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.grid {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.grid th {
+  font-weight: 500;
+  color: var(--muted);
+  padding: 4px;
+  text-align: center;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.grid th.grid__block,
+.grid tfoot th {
+  text-align: left;
+  color: var(--text);
+  text-transform: none;
+}
+
+.grid__today {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.grid__cell {
+  --r: 0;
+  padding: 8px 4px;
+  border-radius: 6px;
+  text-align: center;
+  background: color-mix(in srgb, var(--done) calc(var(--r) * 0.7%), var(--track));
+}
+
+.grid__cell--done {
+  background: var(--done);
+  color: #04210f;
+  font-weight: 700;
+}
+
+.grid__cell--empty {
+  background: transparent;
+  color: var(--muted);
+}
+
+.grid__total {
+  font-weight: 600;
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createDay } from './dayRollover'
 import { addDays } from './dates'
 import { at, gym, leet, template } from './fixtures'
-import { currentStreak, lastDays } from './history'
+import { blockRows, currentStreak, lastDays } from './history'
 import type { Day } from './types'
 
 const now = at(2026, 10, 19, 12)
@@ -70,5 +70,23 @@ describe('currentStreak', () => {
 
   it('vaut 0 sans historique', () => {
     expect(currentStreak({}, today, now)).toBe(0)
+  })
+})
+
+describe('blockRows', () => {
+  it('construit une grille bloc × jour, null quand le bloc n’existait pas', () => {
+    const old = createDay('2026-10-18', [leet])
+    const days = byDate(old, partial(today))
+    const rows = blockRows(lastDays(days, today, 2, now))
+
+    expect(rows.map((r) => r.blockId)).toEqual(['leet', 'gym'])
+    expect(rows[0].cells.map((c) => c?.done)).toEqual([false, true])
+    expect(rows[1].cells[0]).toBeNull()
+    expect(rows[1].cells[1]?.done).toBe(false)
+  })
+
+  it('garde les jours sans donnée comme cellules vides', () => {
+    const rows = blockRows(lastDays(byDate(complete(today)), today, 3, now))
+    expect(rows[0].cells.map((c) => c === null)).toEqual([true, true, false])
   })
 })

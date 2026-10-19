@@ -62,3 +62,31 @@ export function currentStreak(days: Record<string, Day>, today: string, now: num
   }
   return streak
 }
+
+export interface BlockRow {
+  blockId: string
+  name: string
+  emoji: string
+  color: string
+  /** Une cellule par jour, dans l'ordre de `summaries` ; null si le bloc n'existait pas ce jour-là. */
+  cells: (BlockSummary | null)[]
+}
+
+/**
+ * Regroupe les blocs de la période en lignes (une par bloc), pour une grille bloc × jour.
+ * L'ordre suit le jour le plus récent, puis les blocs disparus du modèle.
+ */
+export function blockRows(summaries: DaySummary[]): BlockRow[] {
+  const rows = new Map<string, BlockRow>()
+  for (const summary of [...summaries].reverse()) {
+    for (const b of summary.blocks) {
+      if (!rows.has(b.blockId)) {
+        rows.set(b.blockId, { blockId: b.blockId, name: b.name, emoji: b.emoji, color: b.color, cells: [] })
+      }
+    }
+  }
+  return [...rows.values()].map((row) => ({
+    ...row,
+    cells: summaries.map((s) => s.blocks.find((b) => b.blockId === row.blockId) ?? null),
+  }))
+}

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { BlockList } from './components/BlockList'
 import { DayProgress } from './components/DayProgress'
+import { History } from './components/History'
 import { ManageBlocks } from './components/ManageBlocks'
 import { Settings } from './components/Settings'
+import { ViewTabs, type View } from './components/ViewTabs'
 import { toDateKey } from './domain/dates'
 import { useAutoValidate } from './hooks/useAutoValidate'
 import { useNow } from './hooks/useNow'
@@ -16,7 +18,7 @@ export default function App() {
   const { state, actions } = useStore()
   const now = useNow()
   const [prefs, updatePrefs] = usePrefs()
-  const [managing, setManaging] = useState(false)
+  const [view, setView] = useState<View>('today')
   const today = toDateKey(now)
   const day = state.days[today]
   const celebrating = useAutoValidate(day, now, prefs, actions.markNotified)
@@ -34,21 +36,27 @@ export default function App() {
         <h1>imDone</h1>
         <p>{dateFormat.format(now)}</p>
       </header>
-      <div className="toolbar">
-        <Settings prefs={prefs} onChange={updatePrefs} />
-        <button type="button" className="btn btn--small" aria-pressed={managing} onClick={() => setManaging((m) => !m)}>
-          {managing ? '← Retour à la journée' : '⚙️ Gérer les blocs'}
-        </button>
-      </div>
+      <ViewTabs view={view} onChange={setView} />
       {/* Région live toujours présente pour que les lecteurs d'écran annoncent la validation. */}
       <p className="toast" role="status" hidden={!celebratedNames?.length}>
         {celebratedNames?.length ? `🎉 ${celebratedNames.join(', ')} : validé !` : ''}
       </p>
-      {day && (
-        <>
-          <DayProgress day={day} now={now} />
-          {managing ? <ManageBlocks day={day} /> : <BlockList day={day} now={now} celebrating={celebrating} />}
-        </>
+      {view === 'history' ? (
+        <History today={today} now={now} />
+      ) : (
+        day && (
+          <>
+            <DayProgress day={day} now={now} />
+            {view === 'manage' ? (
+              <ManageBlocks day={day} />
+            ) : (
+              <>
+                <Settings prefs={prefs} onChange={updatePrefs} />
+                <BlockList day={day} now={now} celebrating={celebrating} />
+              </>
+            )}
+          </>
+        )
       )}
     </main>
   )
